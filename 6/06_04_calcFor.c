@@ -1,5 +1,5 @@
-//
-//  06_04_calcFor.c
+//[[
+//  06_04_calcFor.c]]
 //  prg1
 //
 //  Created by k24015kk on 2024/05/22.

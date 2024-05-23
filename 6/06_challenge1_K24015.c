@@ -17,10 +17,12 @@ int main(int argc, const char * argv[]){
             h = 1;
         }
     }
-           if(h==1 || n==0 || n==1){
-               printf("素数ではありません\n");
-           }else{
-               printf("素数です\n");
-           }
+
+    if(h==1 || n==0 || n==1){
+        printf("素数ではありません\n");
+        
+    }else{
+        printf("素数です\n");
+    }
     return 0;
 }
