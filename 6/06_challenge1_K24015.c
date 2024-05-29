@@ -7,18 +7,18 @@
 
 #include <stdio.h>
 int main(int argc, const char * argv[]){
-    int i,n,h;
-    h = 0;
+    int i,n,isPrimeNumber;
+    isPrimeNumber = 0;
     printf("n? ");
     scanf("%d",&n);
     
     for(i=2 ; i<n ; i++){
         if(n % i == 0){
-            h = 1;
+            isPrimeNumber = 1;
         }
     }
 
-    if(h==1 || n==0 || n==1){
+    if(isPrimeNumber==1 || n==0 || n==1){
         printf("素数ではありません\n");
         
     }else{
