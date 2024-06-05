@@ -17,12 +17,12 @@ int main(int argc, const char * argv[]){
         
         if(amount == 0){
             printf("取引終了\n");
-            return 0;
+            break;
         }
         
         wallet = wallet - amount ;
         
         printf("残高: %d\n",wallet);
     }
-    
+    return 0;
 }

@@ -19,5 +19,6 @@ int main(int argc, const char * argv[]){
         
         printf("sum: %d\n",sum);
     }
+    printf("end\n");
     return 0;
 }

@@ -29,5 +29,5 @@ int main(int argc, const char * argv[]){
         
         printf("残高: %d\n",wallet);
     }
-    
+    return 0;
 }
