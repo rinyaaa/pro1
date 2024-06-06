@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		AB4C5FFA2C11466F00E932A6 /* 08_issue1_k24015.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = 08_issue1_k24015.c; sourceTree = "<group>"; };
+		AB4C5FFB2C114C7900E932A6 /* 08_challenge1_k24015.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = 08_challenge1_k24015.c; sourceTree = "<group>"; };
 		AB9261D22BFFA60F003A9854 /* 05_01_if1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = 05_01_if1.c; sourceTree = "<group>"; };
 		AB9261D32BFFA60F003A9854 /* 05_02_if2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = 05_02_if2.c; sourceTree = "<group>"; };
 		AB9261D42BFFA60F003A9854 /* 05_03_ifelse1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = 05_03_ifelse1.c; sourceTree = "<group>"; };
@@ -85,6 +87,8 @@
 				AB98762E2C0AEAAD00FA2FBB /* 08_04_calcWhile.c */,
 				AB98762F2C0AECF900FA2FBB /* 08_05_tillzero.c */,
 				AB9876302C0B044F00FA2FBB /* 08_06_tillzero2.c */,
+				AB4C5FFA2C11466F00E932A6 /* 08_issue1_k24015.c */,
+				AB4C5FFB2C114C7900E932A6 /* 08_challenge1_k24015.c */,
 				AB9876312C0B055200FA2FBB /* 08_07_tillzero3.c */,
 				AB9261FD2BFFA60F003A9854 /* １ */,
 				AB9261E52BFFA60F003A9854 /* ２ */,
