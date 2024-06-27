@@ -3,7 +3,8 @@
   "files.associations": {
     "stdio.h": "c",
     "__config": "c",
-    "stdbool.h": "c"
+    "stdbool.h": "c",
+    "variant": "c"
   },
   "cSpell.words": ["outro", "Treatmentable"]
 }
