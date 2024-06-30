@@ -79,7 +79,6 @@ void load_map_from_file(const char *filename) {
     fclose(file); // ファイルを閉じる
 }
 
-// プレーヤーの位置を更新
 // プレイヤーの位置を更新
 void update_player_position(int player, char input) {
     int newX, newY;
