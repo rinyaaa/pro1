@@ -4,7 +4,9 @@
     "stdio.h": "c",
     "__config": "c",
     "stdbool.h": "c",
-    "variant": "c"
+    "variant": "c",
+    "stdlib.h": "c",
+    "ncurses.h": "c"
   },
   "cSpell.words": ["outro", "Treatmentable"]
 }
