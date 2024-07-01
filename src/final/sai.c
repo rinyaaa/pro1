@@ -10,17 +10,28 @@
 #define map_height (20)
 
 char map[map_height][map_width];
-int player1_x = map_width / 2;  // プレーヤー1の初期位置（X座標）
-int player1_y = map_height / 2; // プレーヤー1の初期位置（Y座標）
+int player1_x = 1; // プレーヤー1の初期位置（X座標）
+int player1_y = 2; // プレーヤー1の初期位置（Y座標）
 
-int player2_x = 1; // プレーヤー2の初期位置（X座標）
+int player2_x = 2; // プレーヤー2の初期位置（X座標）
 int player2_y = 1; // プレーヤー2の初期位置（Y座標）
 
 int turn = 1; // プレーヤー1から開始
 
+// プレーヤーの動かせるコマを決めるもの
 int roll_dice() {
     srand(time(NULL));     // 乱数シードの初期化
     return rand() % 6 + 1; // 1から6までのランダムな数を返す
+}
+
+int rodom_wrop_x() {
+    srand(time(NULL)); // 乱数シードの初期化
+    return rand() % 40 + 1;
+}
+
+int rodom_wrop_y() {
+    srand(time(NULL)); // 乱数シードの初期化
+    return rand() % 18 + 1;
 }
 
 // 1文字の入力を取得
@@ -116,6 +127,14 @@ void update_player_position(int player, char input) {
             player2_x = newX;
             player2_y = newY;
         }
+    }
+    int rodom_x = 0;
+    int rodom_y = 0;
+    if(player1_x == player2_x && player1_y == player2_y) {
+        rodom_x = rodom_wrop_x();
+        rodom_y = rodom_wrop_y();
+        player1_x = rodom_x;
+        player2_y = rodom_y;
     }
 
     // ゴールに到達したら
