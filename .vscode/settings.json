@@ -6,7 +6,8 @@
     "stdbool.h": "c",
     "variant": "c",
     "stdlib.h": "c",
-    "ncurses.h": "c"
+    "ncurses.h": "c",
+    "math.h": "c"
   },
   "cSpell.words": ["outro", "Treatmentable"]
 }
