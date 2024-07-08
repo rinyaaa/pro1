@@ -7,7 +7,10 @@
     "variant": "c",
     "stdlib.h": "c",
     "ncurses.h": "c",
-    "math.h": "c"
+    "math.h": "c",
+    "termios.h": "c",
+    "time.h": "c",
+    "unistd.h": "c"
   },
   "cSpell.words": ["outro", "Treatmentable"]
 }
