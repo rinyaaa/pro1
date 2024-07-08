@@ -6,8 +6,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#define map_width (41)
-#define map_height (20)
+#define map_width (83)
+#define map_height (31)
 
 char map[map_height][map_width];
 int player1_x = 1; // プレーヤー1の初期位置（X座標）

@@ -10,12 +10,12 @@ enum { map_height = 31, map_width = 41 }; // mapの範囲指定
 
 typedef enum { map_floor, map_wall, map_start, map_goal } MazeCell;
 
-MazeCell maze[map_height][map_width];
+MazeCell map[map_height][map_width];
 
 void initialize_maze() {
     for(int y = 0; y < map_height; y++) {
         for(int x = 0; x < map_width; x++) {
-            maze[y][x] = map_wall;
+            map[y][x] = map_wall;
         }
     }
 }
@@ -36,7 +36,7 @@ void print_maze() {
             } else if(x == player2_x && y == player2_y) {
                 printf("2 ");
             } else {
-                switch(maze[y][x]) {
+                switch(map[y][x]) {
                 case map_floor:
                     printf("  ");
                     break;
@@ -59,9 +59,9 @@ void print_maze() {
 void generate_maze(int x, int y) {
     const int dirs[4][2] = {{0, 2}, {2, 0}, {0, -2}, {-2, 0}};
     int order[4] = {0, 1, 2, 3};
-    maze[y][x] = map_floor;
+    map[y][x] = map_floor;
 
-    // Fisher-Yatesアルゴリズムで方向をランダムにシャッフル
+    // 穴掘り法で方向をランダムにシャッフル
     for(int i = 3; i > 0; i--) {
         int j = rand() % (i + 1);
         int temp = order[i];
@@ -75,9 +75,9 @@ void generate_maze(int x, int y) {
         int nx = x + dx;
         int ny = y + dy;
         if(nx >= 0 && nx < map_width && ny >= 0 && ny < map_height &&
-           maze[ny][nx] == map_wall) {
-            maze[ny - dy / 2][nx - dx / 2] = map_floor;
-            maze[ny][nx] = map_floor;
+           map[ny][nx] == map_wall) {
+            map[ny - dy / 2][nx - dx / 2] = map_floor;
+            map[ny][nx] = map_floor;
             generate_maze(nx, ny);
         }
     }
@@ -137,7 +137,7 @@ void update_player_position(int player, char input) {
     }
 
     // 壁でない場合にのみ移動
-    if(maze[newY][newX] != map_wall) {
+    if(map[newY][newX] != map_wall) {
         if(player == 1) {
             player1_x = newX;
             player1_y = newY;
@@ -151,7 +151,7 @@ void update_player_position(int player, char input) {
     if(player1_x == player2_x && player1_y == player2_y) {
         int rodom_x = rodom_wrop_x();
         int rodom_y = rodom_wrop_y();
-        while(maze[rodom_y][rodom_x] != map_floor) {
+        while(map[rodom_y][rodom_x] != map_floor) {
             rodom_x = rodom_wrop_x();
             rodom_y = rodom_wrop_y();
         }
@@ -165,7 +165,7 @@ void update_player_position(int player, char input) {
     }
 
     // ゴールに到達したら
-    if(maze[newY][newX] == map_goal) {
+    if(map[newY][newX] == map_goal) {
         print_maze();
         printf("プレーヤー%dがゴールです！\nおめでとうございます！\n", player);
         exit(0); // プログラムを終了
@@ -176,8 +176,8 @@ int main(void) {
     srand(time(NULL));
     initialize_maze();
     generate_maze(1, 1); // スタート地点を(1,1)に設定
-    maze[1][1] = map_start;
-    maze[map_height - 2][map_width - 2] = map_goal;
+    map[1][1] = map_start;
+    map[map_height - 2][map_width - 2] = map_goal;
     print_maze();
 
     int moves_count = 0;
