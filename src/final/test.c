@@ -89,8 +89,8 @@ int roll_dice() {
     return rand() % 6 + 1; // 1から6までのランダムな数を返す
 }
 
-int rodom_wrop_1() { return rand() % map_width - 2; }
-int rodom_wrop_2() { return rand() % map_height - 2; }
+int rodom_wrop_x() { return rand() % 39; }
+int rodom_wrop_y() { return rand() % 29; }
 
 // 1文字の入力を取得
 int getch(void) {
@@ -151,12 +151,13 @@ void update_player_position(int player, char input) {
 
         // プレイヤーが重なった場合の処理
         if(player1_x == player2_x && player1_y == player2_y) {
-            int rodom_x = rodom_wrop_1();
-            int rodom_y = rodom_wrop_2();
+            int rodom_x = rodom_wrop_x();
+            int rodom_y = rodom_wrop_y();
+
             // ワープ先が#だった時の処理
             while(map[rodom_y][rodom_x] != map_floor) {
-                rodom_x = rodom_wrop_1();
-                rodom_y = rodom_wrop_2();
+                rodom_x = rodom_wrop_x();
+                rodom_y = rodom_wrop_y();
             }
 
             player1_x = rodom_x;
@@ -185,19 +186,56 @@ int main(void) {
     map[map_height - 2][map_width - 2] = map_goal;
     print_map();
 
+    int first = 1; // 最初の反復を示すフラグ変数
     int moves_count = 0;
     int dice = 0;
     int dice_screen = 0;
+    char dice_judg;
 
     while(1) {
         print_map();
         // 最初だけサイコロを振る
         if(moves_count == 0) {
+            if(!first) {
+                printf("\n");
+                printf(
+                    "### ##   ####       ##     ##  ##   ### ###  ### ##       "
+                    "    "
+                    "  ## ##   ###  ##    ##     ###  ##   ## ##   ### ###\n");
+                printf(
+                    " ##  ##   ##         ##    ##  ##    ##  ##   ##  ##      "
+                    "    "
+                    " ##   ##   ##  ##     ##      ## ##  ##   ##   ##  ##\n");
+                printf(
+                    " ##  ##   ##       ## ##   ##  ##    ##       ##  ##      "
+                    " "
+                    "    ##        ##  ##   ## ##    # ## #  ##        ##\n");
+                printf(" ##  ##   ##       ##  ##   ## ##    ## ##    ## ##    "
+                       "    "
+                       "    ##        ## ###   ##  ##   ## ##   ##  ###   ## "
+                       "##\n");
+                printf(
+                    " ## ##    ##       ## ###    ##      ##       ## ##       "
+                    " "
+                    "    ##        ##  ##   ## ###   ##  ##  ##   ##   ##\n");
+                printf(
+                    " ##       ##  ##   ##  ##    ##      ##  ##   ##  ##      "
+                    "    "
+                    " ##   ##   ##  ##   ##  ##   ##  ##  ##   ##   ##  ##\n");
+                printf(
+                    "####     ### ###  ###  ##    ##     ### ###  #### ##      "
+                    "    "
+                    "  ## ##   ###  ##  ###  ##  ###  ##   ## ##   ### ###\n");
+                printf("\n");
+            } else {
+                first = 0; // 最初の反復が終わったらフラグを下ろす
+            }
             dice = roll_dice();
             dice_screen = dice;
         }
 
         // 現在のプレーヤーのターンを表示
+
         printf("プレーヤー%dのターンです。\n", turn);
         printf("サイコロの目は%dでした\n", dice_screen);
         printf("あと%d回動かせます\n", dice - moves_count);
