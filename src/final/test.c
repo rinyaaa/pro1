@@ -89,8 +89,11 @@ int roll_dice() {
     return rand() % 6 + 1; // 1から6までのランダムな数を返す
 }
 
-int rodom_wrop_x() { return rand() % 39; }
-int rodom_wrop_y() { return rand() % 28; }
+int rodom_wrop_x() { return rand() % 25 + 1; }
+int rodom_wrop_y() { return rand() % 25 + 1; }
+
+int rodom_wrop_2x() { return rand() % 25 + 1; }
+int rodom_wrop_2y() { return rand() % 25 + 1; }
 
 // 1文字の入力を取得
 int getch(void) {
@@ -154,6 +157,9 @@ void update_player_position(int player, char input) {
             int rodom_x = rodom_wrop_x();
             int rodom_y = rodom_wrop_y();
 
+            int rodom_2x = rodom_wrop_2x();
+            int rodom_2y = rodom_wrop_2y();
+
             // ワープ先が#だった時の処理
             while(map[rodom_y][rodom_x] != map_floor) {
                 rodom_x = rodom_wrop_x();
@@ -163,8 +169,13 @@ void update_player_position(int player, char input) {
             player1_x = rodom_x;
             player1_y = rodom_y;
 
-            player2_x = rodom_y;
-            player2_y = rodom_x;
+            while(map[rodom_2y][rodom_2x] != map_floor) {
+                rodom_2x = rodom_wrop_2x();
+                rodom_2y = rodom_wrop_2y();
+            }
+
+            player2_x = rodom_2x;
+            player2_y = rodom_2y;
         }
 
         // ゴールに到達したら
@@ -203,6 +214,7 @@ int main(void) {
 
     while(1) {
         print_map();
+
         // 最初だけサイコロを振る
         if(moves_count == 0) {
             if(!first) {
