@@ -90,7 +90,7 @@ int roll_dice() {
 }
 
 int rodom_wrop_x() { return rand() % 39; }
-int rodom_wrop_y() { return rand() % 29; }
+int rodom_wrop_y() { return rand() % 28; }
 
 // 1文字の入力を取得
 int getch(void) {
@@ -170,6 +170,15 @@ void update_player_position(int player, char input) {
         // ゴールに到達したら
         if(map[newY][newX] == map_goal) {
             print_map();
+            printf("\n");
+            printf("   ####    #####     ##     ####\n");
+            printf("  ##  ##  ##   ##   ####     ##\n");
+            printf(" ##       ##   ##  ##  ##    ##\n");
+            printf(" ##       ##   ##  ##  ##    ##\n");
+            printf(" ##  ###  ##   ##  ######    ##   #\n");
+            printf("  ##  ##  ##   ##  ##  ##    ##  ##\n");
+            printf("   #####   #####   ##  ##   #######\n");
+            printf("\n");
             printf("プレーヤー%dがゴールです！\nおめでとうございます！\n",
                    player);
             exit(0); // プログラムを終了
