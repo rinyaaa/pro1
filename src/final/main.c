@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,28 +13,36 @@ typedef enum { map_floor, map_wall, map_start, map_goal } MazeCell;
 
 MazeCell map[map_height][map_width];
 
-void initialize_map() {
-    for(int y = 0; y < map_height; y++) {
-        for(int x = 0; x < map_width; x++) {
-            map[y][x] = map_wall;
-        }
-    }
-}
-
 int player1_x = 1; // プレーヤー1の初期位置（X座標）
 int player1_y = 1; // プレーヤー1の初期位置（Y座標）
 
 int player2_x = 2; // プレーヤー2の初期位置（X座標）
 int player2_y = 1; // プレーヤー2の初期位置（Y座標）
 
+// mapの初期化
+void initialize_map() {
+    for(int x = 0; x < map_height; x++) {
+        for(int y = 0; y < map_width; y++) {
+            if(x == player2_x && y == player2_y) {
+                map[x][y] = map_floor;
+            } else
+                map[x][y] = map_wall;
+        }
+    }
+}
+
 int turn = 1; // プレーヤー1から開始
+
+bool wall_break_flag = false;
+bool b_flag = false;
+bool break_flag = false;
 
 void print_map() {
     system("clear"); // 画面をクリア
     for(int y = 0; y < map_height; y++) {
         for(int x = 0; x < map_width; x++) {
             if(x == player1_x && y == player1_y) {
-                printf("\x1b[31mP1\x1b[39m");
+                printf("\x1b[36mP1\x1b[39m");
             } else if(x == player2_x && y == player2_y) {
                 printf("\x1b[32mP2\x1b[39m");
             } else {
@@ -48,7 +57,7 @@ void print_map() {
                     printf("  ");
                     break;
                 case map_goal:
-                    printf("G ");
+                    printf("\x1b[31mG \x1b[39m");
                     break;
                 }
             }
@@ -91,6 +100,9 @@ int roll_dice() {
 
 int rodom_wrop_x() { return rand() % 25 + 1; }
 int rodom_wrop_y() { return rand() % 25 + 1; }
+
+int rodom_wrop_2x() { return rand() % 25 + 1; }
+int rodom_wrop_2y() { return rand() % 25 + 1; }
 
 // 1文字の入力を取得
 int getch(void) {
@@ -154,6 +166,9 @@ void update_player_position(int player, char input) {
             int rodom_x = rodom_wrop_x();
             int rodom_y = rodom_wrop_y();
 
+            int rodom_2x = rodom_wrop_2x();
+            int rodom_2y = rodom_wrop_2y();
+
             // ワープ先が#だった時の処理
             while(map[rodom_y][rodom_x] != map_floor) {
                 rodom_x = rodom_wrop_x();
@@ -163,18 +178,24 @@ void update_player_position(int player, char input) {
             player1_x = rodom_x;
             player1_y = rodom_y;
 
-            while(map[rodom_y][rodom_x] != map_floor) {
-                rodom_x = rodom_wrop_x();
-                rodom_y = rodom_wrop_y();
+            while(map[rodom_2y][rodom_2x] != map_floor) {
+                rodom_2x = rodom_wrop_2x();
+                rodom_2y = rodom_wrop_2y();
             }
 
-            player2_x = rodom_x;
-            player2_y = rodom_y;
+            player2_x = rodom_2x;
+            player2_y = rodom_2y;
         }
 
         // ゴールに到達したら
         if(map[newY][newX] == map_goal) {
             print_map();
+
+            if(player == 1) {
+                printf("\x1b[36m");
+            } else {
+                printf("\x1b[32m");
+            }
             printf("\n");
             printf("   ####    #####     ##     ####\n");
             printf("  ##  ##  ##   ##   ####     ##\n");
@@ -191,6 +212,45 @@ void update_player_position(int player, char input) {
     }
 }
 
+// 壁を壊す機能
+bool break_wall(int player, char direction) {
+    int px, py;
+    if(player == 1) {
+        px = player1_x;
+        py = player1_y;
+    } else {
+        px = player2_x;
+        py = player2_y;
+    }
+    switch(direction) {
+    case 'w': // 上
+        if(py > 1 && map[py - 1][px] == map_wall) {
+            map[py - 1][px] = map_floor;
+            return true;
+        }
+        break;
+    case 's': // 下
+        if(py < map_height - 2 && map[py + 1][px] == map_wall) {
+            map[py + 1][px] = map_floor;
+            return true;
+        }
+        break;
+    case 'a': // 左
+        if(px > 1 && map[py][px - 1] == map_wall) {
+            map[py][px - 1] = map_floor;
+            return true;
+        }
+        break;
+    case 'd': // 右
+        if(px < map_width - 2 && map[py][px + 1] == map_wall) {
+            map[py][px + 1] = map_floor;
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
 int main(void) {
     srand(time(NULL));
 
@@ -200,101 +260,146 @@ int main(void) {
     map[map_height - 2][map_width - 2] = map_goal;
     print_map();
 
-    int first = 1; // 最初の反復を示すフラグ変数
+    int first = 0; // 最初の反復を示すフラグ変数
     int moves_count = 0;
-    int dice = 0;
-    int dice_screen = 0;
-    char dice_judg;
+    int dice = roll_dice();
+    int dice_screen = dice;
+
+    bool player1_break = true;
+    bool player2_break = true;
+    bool b_flag = false;
+    bool wall_break_flag = false;
 
     while(1) {
         print_map();
-
-        // 最初だけサイコロを振る
-        if(moves_count == 0) {
-            if(!first) {
-                // playerchangeのアスキーアート
+        if(first) {
+            if(moves_count == 0) {
                 printf("\n");
-                printf(
-                    "### ##   ####       ##     ##  ##   ### ###  ### ##       "
-                    "    "
-                    "  ## ##   ###  ##    ##     ###  ##   ## ##   ### ###\n");
-                printf(
-                    " ##  ##   ##         ##    ##  ##    ##  ##   ##  ##      "
-                    "    "
-                    " ##   ##   ##  ##     ##      ## ##  ##   ##   ##  ##\n");
-                printf(
-                    " ##  ##   ##       ## ##   ##  ##    ##       ##  ##      "
-                    " "
-                    "    ##        ##  ##   ## ##    # ## #  ##        ##\n");
-                printf(" ##  ##   ##       ##  ##   ## ##    ## ##    ## ##    "
+                printf("### ##   ####       ##     ##  ##   ### ###  ### "
+                       "##       "
+                       "    "
+                       "  ## ##   ###  ##    ##     ###  ##   ## ##   ### "
+                       "###\n");
+                printf(" ##  ##   ##         ##    ##  ##    ##  ##   ##  "
+                       "##      "
+                       "    "
+                       " ##   ##   ##  ##     ##      ## ##  ##   ##   ##  "
+                       "##\n");
+                printf(" ##  ##   ##       ## ##   ##  ##    ##       ##  "
+                       "##      "
+                       " "
+                       "    ##        ##  ##   ## ##    # ## #  ##        "
+                       "##\n");
+                printf(" ##  ##   ##       ##  ##   ## ##    ## ##    ## ##   "
+                       " "
                        "    "
                        "    ##        ## ###   ##  ##   ## ##   ##  ###   ## "
                        "##\n");
-                printf(
-                    " ## ##    ##       ## ###    ##      ##       ## ##       "
-                    " "
-                    "    ##        ##  ##   ## ###   ##  ##  ##   ##   ##\n");
-                printf(
-                    " ##       ##  ##   ##  ##    ##      ##  ##   ##  ##      "
-                    "    "
-                    " ##   ##   ##  ##   ##  ##   ##  ##  ##   ##   ##  ##\n");
-                printf(
-                    "####     ### ###  ###  ##    ##     ### ###  #### ##      "
-                    "    "
-                    "  ## ##   ###  ##  ###  ##  ###  ##   ## ##   ### ###\n");
+                printf(" ## ##    ##       ## ###    ##      ##       ## "
+                       "##       "
+                       " "
+                       "    ##        ##  ##   ## ###   ##  ##  ##   ##   "
+                       "##\n");
+                printf(" ##       ##  ##   ##  ##    ##      ##  ##   ##  "
+                       "##      "
+                       "    "
+                       " ##   ##   ##  ##   ##  ##   ##  ##  ##   ##   ##  "
+                       "##\n");
+                printf("####     ### ###  ###  ##    ##     ### ###  #### "
+                       "##      "
+                       "    "
+                       "  ## ##   ###  ##  ###  ##  ###  ##   ## ##   ### "
+                       "###\n");
                 printf("\n");
-            } else {
-                first = 0; // 最初の反復が終わったらフラグを下ろす
             }
-            dice = roll_dice();
-            dice_screen = dice;
+        } else {
+            first = 1;
         }
 
         // 現在のプレーヤーのターンを表示
-
         printf("プレーヤー%dのターンです。\n", turn);
         printf("サイコロの目は%dでした\n", dice_screen);
         printf("あと%d回動かせます\n", dice - moves_count);
 
-        // キーボードの入力を検出
-        char input = getch(); // 入力を取得
-        if(input == 'q')
-            break; // 'q'キーで終了
-
-        // 移動前の位置を保存
-        int prev_x, prev_y;
-        if(turn == 1) {
-            prev_x = player1_x;
-            prev_y = player1_y;
-        } else {
-            prev_x = player2_x;
-            prev_y = player2_y;
-        }
-
-        update_player_position(turn, input); // プレーヤーの位置を更新
-
-        // 移動が有効かチェック
-        int moved = 0;
-        if(turn == 1 && (prev_x != player1_x || prev_y != player1_y)) {
-            moved = 1;
-        } else if(turn == 2 && (prev_x != player2_x || prev_y != player2_y)) {
-            moved = 1;
-        }
-
-        // 移動した場合にのみ動かせる回数を減らす
-        if(moved) {
-            moves_count++;
-        }
-
-        // 現在のプレーヤーがサイコロ分移動したかどうかをチェック
-        if(moves_count == dice) {
-            // ターンを交代
+        // 壁を壊した時、メッセージを表示
+        if(b_flag) {
             if(turn == 1) {
-                turn = 2;
-            } else {
-                turn = 1;
+                if(player1_break) {
+                    if(wall_break_flag) {
+                        printf("壁が破壊されました。\n");
+                        wall_break_flag = false;
+                        player1_break = false;
+                    } else {
+                        printf("選択した箇所に対象ブロックがありません\n");
+                    }
+                } else {
+                    printf("\x1b[43m壊すのは一回しか行えません\x1b[39m\n");
+                }
+            } else if(turn == 2) {
+                if(player2_break) {
+                    if(wall_break_flag) {
+                        printf("壁が破壊されました。\n");
+                        wall_break_flag = false;
+                        player2_break = false;
+                    } else {
+                        printf("選択した箇所に対象ブロックがありません\n");
+                    }
+                } else {
+                    printf("\x1b[43m壊すのは一回しか行えません\x1b[39m\n");
+                }
             }
-            moves_count = 0;
+            b_flag = false; // b_flagをリセットする
+        }
+
+        char input = getch(); // キーボードの入力を取得
+        if(input == 'q') {
+            break; // 'q'キーで終了
+        }
+
+        // 壁を壊す処理
+        if(input == 'b') {
+            printf("どの方向の壁を壊しますか？(w/a/s/d):\n ");
+            char direction = getch(); // 壁を壊す方向を取得
+            b_flag = true;
+            if((turn == 1 && player1_break) || (turn == 2 && player2_break)) {
+                wall_break_flag = break_wall(turn, direction);
+            }
+        } else {
+            // 移動前の位置を保存
+            int prev_x, prev_y;
+            if(turn == 1) {
+                prev_x = player1_x;
+                prev_y = player1_y;
+            } else {
+                prev_x = player2_x;
+                prev_y = player2_y;
+            }
+
+            update_player_position(turn, input); // プレーヤーの位置を更新
+
+            // 移動が有効かチェック
+            int moved = 0;
+            if(turn == 1 && (prev_x != player1_x || prev_y != player1_y)) {
+                moved = 1;
+            } else if(turn == 2 &&
+                      (prev_x != player2_x || prev_y != player2_y)) {
+                moved = 1;
+            }
+
+            // 移動した場合にのみ動かせる回数を減らす
+            if(moved) {
+                moves_count++;
+            }
+
+            // 現在のプレーヤーがサイコロ分移動したかどうかをチェック
+            if(moves_count == dice) {
+                // ターンを交代
+
+                turn = (turn == 1) ? 2 : 1;
+                dice = roll_dice();
+                dice_screen = dice;
+                moves_count = 0;
+            }
         }
 
         usleep(100000); // 0.1秒待機
