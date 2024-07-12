@@ -212,6 +212,7 @@ int main(void) {
         // 最初だけサイコロを振る
         if(moves_count == 0) {
             if(!first) {
+                // playerchangeのアスキーアート
                 printf("\n");
                 printf(
                     "### ##   ####       ##     ##  ##   ### ###  ### ##       "
