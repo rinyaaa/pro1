@@ -9,7 +9,10 @@
 #define map_height 31
 #define map_width 41 // mapの範囲指定
 
-typedef enum { map_floor, map_wall, map_start, map_goal } MazeCell;
+typedef enum { map_floor,
+               map_wall,
+               map_start,
+               map_goal } MazeCell;
 
 MazeCell map[map_height][map_width];
 
@@ -111,7 +114,7 @@ int getch(void) {
 
     tcgetattr(STDIN_FILENO, &oldt); // 既存の端末属性を取得
     newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO); // 行単位の入力無効と画面に表示しない設定
+    newt.c_lflag &= ~(ICANON | ECHO);        // 行単位の入力無効と画面に表示しない設定
     tcsetattr(STDIN_FILENO, TCSANOW, &newt); // 新しい設定を即時に適用
 
     ch = getchar(); // 文字を取得
@@ -205,6 +208,24 @@ void update_player_position(int player, char input) {
             printf("  ##  ##  ##   ##  ##  ##    ##  ##\n");
             printf("   #####   #####   ##  ##   #######\n");
             printf("\n");
+
+            if(player == 1) {
+                printf("######   ####       ##     ##  ##   #######  ######     ##     ##   ##   ####    ##   ##\n");
+                printf(" ##  ##   ##       ####    ##  ##    ##   #   ##  ##   ###     ##   ##    ##     ###  ##\n");
+                printf(" ##  ##   ##      ##  ##   ##  ##    ## #     ##  ##    ##     ##   ##    ##     #### ##\n");
+                printf(" #####    ##      ##  ##    ####     ####     #####     ##     ## # ##    ##     ## ####\n");
+                printf(" ##       ##   #  ######     ##      ## #     ## ##     ##     #######    ##     ##  ###\n");
+                printf(" ##       ##  ##  ##  ##     ##      ##   #   ##  ##    ##     ### ###    ##     ##   ##\n");
+                printf("####     #######  ##  ##    ####    #######  #### ##  ######   ##   ##   ####    ##   ##\n");
+            } else {
+                printf("######   ####       ##     ##  ##   #######  ######    ####    ##   ##   ####    ##   ##\n");
+                printf(" ##  ##   ##       ####    ##  ##    ##   #   ##  ##  ##  ##   ##   ##    ##     ###  ##\n");
+                printf(" ##  ##   ##      ##  ##   ##  ##    ## #     ##  ##      ##   ##   ##    ##     #### ##\n");
+                printf(" #####    ##      ##  ##    ####     ####     #####     ###    ## # ##    ##     ## ####\n");
+                printf(" ##       ##   #  ######     ##      ## #     ## ##    ##      #######    ##     ##  ###\n");
+                printf(" ##       ##  ##  ##  ##     ##      ##   #   ##  ##  ##  ##   ### ###    ##     ##   ##\n");
+                printf("####     #######  ##  ##    ####    #######  #### ##  ######   ##   ##   ####    ##   ##\n");
+            }
             printf("プレーヤー%dがゴールです！\nおめでとうございます！\n",
                    player);
             exit(0); // プログラムを終了
@@ -251,7 +272,78 @@ bool break_wall(int player, char direction) {
     return false;
 }
 
+int dice_animation() {
+    int random;
+    printf("\rサイコロを振っています...\n");
+    for(int i = 0; i < 14; i++) {
+        system("clear"); // 画面をクリア
+        print_map();
+        random = roll_dice();
+        if(random == 1) {
+            printf(" _____ \n"
+                   "|     |\n"
+                   "|  •  |\n"
+                   "|_____|\n");
+        } else if(random == 2) {
+            printf(" _____ \n"
+                   "|•    |\n"
+                   "|     |\n"
+                   "|____•|\n");
+
+        } else if(random == 3) {
+            printf(
+                " _____ \n"
+                "|•    |\n"
+                "|  •  |\n"
+                "|____•|\n");
+        } else if(random == 4) {
+            printf(" _____ \n"
+                   "|•   •|\n"
+                   "|     |\n"
+                   "|•___•|\n");
+        } else if(random == 5) {
+            printf(" _____ \n"
+                   "|•   •|\n"
+                   "|  •  |\n"
+                   "|•___•|\n");
+        } else {
+            printf(" _____ \n"
+                   "|•   •|\n"
+                   "|•   •|\n"
+                   "|•___•|\n");
+        }
+
+        usleep(100000); // 0.1秒待機
+    }
+    printf("\rサイコロの目は...          \n");
+    return random;
+}
+
+void wait_start() {
+    char ch;
+    // ゲーム名
+    system("clear");
+    printf("\n");
+    printf("##   ##    ##     #######  #######            #####   #######           ####      ####    #######  #######\n");
+    printf("### ###   ####    #   ##    ##   #           ##   ##   ##   #            ##        ##      ##   #   ##   #\n");
+    printf("#######  ##  ##      ##     ## #             ##   ##   ## #              ##        ##      ## #     ## #\n");
+    printf("#######  ##  ##     ##      ####             ##   ##   ####              ##        ##      ####     ####\n");
+    printf("## # ##  ######    ##       ## #             ##   ##   ## #              ##   #    ##      ## #     ## #\n");
+    printf("##   ##  ##  ##   ##    #   ##   #           ##   ##   ##                ##  ##    ##      ##       ##   #\n");
+    printf("##   ##  ##  ##   #######  #######            #####   ####              #######   ####    ####     #######\n");
+    printf("\n");
+    printf("全画面にしてください\n");
+    printf("ゲームを開始するときは「s」を押してください\n");
+
+    while((ch = getch()) != 's') {
+        // 's'キーが押されるまで待機
+    }
+}
+
 int main(void) {
+
+    wait_start();
+
     srand(time(NULL));
 
     initialize_map();
@@ -260,14 +352,14 @@ int main(void) {
     map[map_height - 2][map_width - 2] = map_goal;
     print_map();
 
+    int dice_screen;
     int first = 0; // 最初の反復を示すフラグ変数
     int moves_count = 0;
-    int dice = roll_dice();
-    int dice_screen = dice;
+    int remaining_moves = 0;
 
+    bool b_flag = false;
     bool player1_break = true;
     bool player2_break = true;
-    bool b_flag = false;
     bool wall_break_flag = false;
 
     while(1) {
@@ -317,9 +409,15 @@ int main(void) {
         }
 
         // 現在のプレーヤーのターンを表示
-        printf("プレーヤー%dのターンです。\n", turn);
-        printf("サイコロの目は%dでした\n", dice_screen);
-        printf("あと%d回動かせます\n", dice - moves_count);
+        if(remaining_moves == 0) {
+            printf("プレーヤー%dのターンです。サイコロを振ってください（Enterキーを押してください）...\n", turn);
+            getchar();                          // プレーヤーがEnterキーを押すまで待つ
+            remaining_moves = dice_animation(); // サイコロを振るアニメーション
+            dice_screen = remaining_moves;
+            printf("出た目は: %d\n", remaining_moves);
+        }
+        printf("%dのターンです\n", turn);
+        printf("あと%d回動かせます\n", remaining_moves - moves_count);
 
         // 壁を壊した時、メッセージを表示
         if(b_flag) {
@@ -333,7 +431,7 @@ int main(void) {
                         printf("選択した箇所に対象ブロックがありません\n");
                     }
                 } else {
-                    printf("\x1b[43m壊すのは一回しか行えません\x1b[39m\n");
+                    printf("\x1b[33m壊すのは一回しか行えません\x1b[39m\n");
                 }
             } else if(turn == 2) {
                 if(player2_break) {
@@ -352,8 +450,8 @@ int main(void) {
         }
 
         char input = getch(); // キーボードの入力を取得
-        if(input == 'q') {
-            break; // 'q'キーで終了
+        if(input == 'p') {
+            break; // 'p'キーで終了5
         }
 
         // 壁を壊す処理
@@ -381,8 +479,7 @@ int main(void) {
             int moved = 0;
             if(turn == 1 && (prev_x != player1_x || prev_y != player1_y)) {
                 moved = 1;
-            } else if(turn == 2 &&
-                      (prev_x != player2_x || prev_y != player2_y)) {
+            } else if(turn == 2 && (prev_x != player2_x || prev_y != player2_y)) {
                 moved = 1;
             }
 
@@ -392,12 +489,11 @@ int main(void) {
             }
 
             // 現在のプレーヤーがサイコロ分移動したかどうかをチェック
-            if(moves_count == dice) {
+            if(moves_count == remaining_moves) {
                 // ターンを交代
 
                 turn = (turn == 1) ? 2 : 1;
-                dice = roll_dice();
-                dice_screen = dice;
+                remaining_moves = 0;
                 moves_count = 0;
             }
         }
