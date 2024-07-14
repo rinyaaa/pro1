@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 #define map_height 21
-#define map_width 31 // mapの範囲指定
+#define map_width 21 // mapの範囲指定
 
 typedef enum { map_floor,
                map_wall,
@@ -101,10 +101,10 @@ int roll_dice() {
     return rand() % 6 + 1; // 1から6までのランダムな数を返す
 }
 
-int rodom_wrop_x() { return rand() % 25 + 1; }
+int rodom_wrop_x() { return rand() % 15 + 1; }
 int rodom_wrop_y() { return rand() % 15 + 1; }
 
-int rodom_wrop_2x() { return rand() % 25 + 1; }
+int rodom_wrop_2x() { return rand() % 15 + 1; }
 int rodom_wrop_2y() { return rand() % 15 + 1; }
 
 // 1文字の入力を取得
@@ -324,7 +324,7 @@ int check_and_apply_interference(int player) {
     int interference_chance = rand() % 100;
 
     // 20%の確率で妨害が発生
-    if(interference_chance < 100) {
+    if(interference_chance < 20) {
         int interference_type = rand() % 3;
 
         switch(interference_type) {
@@ -409,7 +409,7 @@ int main(void) {
                     printf("player%dは1ターン休みです\n", turn_rest);
                 } else if(interference_cheak == 1) {
                     printf("壁の位置がランダムで変更されます\n");
-                } else {
+                } else if(interference_cheak == 2) {
                     printf("playerがいれかわります\n");
                 }
             }
