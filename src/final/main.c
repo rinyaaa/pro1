@@ -6,8 +6,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#define map_height 31
-#define map_width 41 // mapの範囲指定
+#define map_height 21
+#define map_width 31 // mapの範囲指定
 
 typedef enum { map_floor,
                map_wall,
@@ -102,10 +102,10 @@ int roll_dice() {
 }
 
 int rodom_wrop_x() { return rand() % 25 + 1; }
-int rodom_wrop_y() { return rand() % 25 + 1; }
+int rodom_wrop_y() { return rand() % 15 + 1; }
 
 int rodom_wrop_2x() { return rand() % 25 + 1; }
-int rodom_wrop_2y() { return rand() % 25 + 1; }
+int rodom_wrop_2y() { return rand() % 15 + 1; }
 
 // 1文字の入力を取得
 int getch(void) {
@@ -319,6 +319,42 @@ int dice_animation() {
     return random;
 }
 
+// 妨害が発生するかチェックし、発生した場合に処理を実行
+int check_and_apply_interference(int player) {
+    int interference_chance = rand() % 100;
+
+    // 20%の確率で妨害が発生
+    if(interference_chance < 100) {
+        int interference_type = rand() % 3;
+
+        switch(interference_type) {
+        case 0:
+            // 1ターン休み
+            turn = (turn == 1) ? 2 : 1;
+            return 0;
+            // 壁の位置が入れ替わる
+        case 1:
+            initialize_map();
+            generate_map(1, 1);
+            map[1][1] = map_start;
+            map[map_height - 2][map_width - 2] = map_goal;
+            print_map();
+            return 1;
+
+        case 2: {
+            int temp_x = player1_x;
+            int temp_y = player1_y;
+            player1_x = player2_x;
+            player1_y = player2_y;
+            player2_x = temp_x;
+            player2_y = temp_y;
+            return 2;
+        }
+        }
+    }
+    return -1;
+}
+
 void wait_start() {
     char ch;
     // ゲーム名
@@ -354,7 +390,9 @@ int main(void) {
 
     int dice_screen;
     int first = 0; // 最初の反復を示すフラグ変数
+    int interference_cheak;
     int moves_count = 0;
+    int turn_rest;
     int remaining_moves = 0;
 
     bool b_flag = false;
@@ -366,42 +404,28 @@ int main(void) {
         print_map();
         if(first) {
             if(moves_count == 0) {
+                if(interference_cheak == 0) {
+                    turn_rest = (turn == 1) ? 2 : 1;
+                    printf("player%dは1ターン休みです\n", turn_rest);
+                } else if(interference_cheak == 1) {
+                    printf("壁の位置がランダムで変更されます\n");
+                } else {
+                    printf("playerがいれかわります\n");
+                }
+            }
+        }
+
+        if(first) {
+            if(moves_count == 0) {
                 printf("\n");
-                printf("### ##   ####       ##     ##  ##   ### ###  ### "
-                       "##       "
-                       "    "
-                       "  ## ##   ###  ##    ##     ###  ##   ## ##   ### "
-                       "###\n");
-                printf(" ##  ##   ##         ##    ##  ##    ##  ##   ##  "
-                       "##      "
-                       "    "
-                       " ##   ##   ##  ##     ##      ## ##  ##   ##   ##  "
-                       "##\n");
-                printf(" ##  ##   ##       ## ##   ##  ##    ##       ##  "
-                       "##      "
-                       " "
-                       "    ##        ##  ##   ## ##    # ## #  ##        "
-                       "##\n");
-                printf(" ##  ##   ##       ##  ##   ## ##    ## ##    ## ##   "
-                       " "
-                       "    "
-                       "    ##        ## ###   ##  ##   ## ##   ##  ###   ## "
-                       "##\n");
-                printf(" ## ##    ##       ## ###    ##      ##       ## "
-                       "##       "
-                       " "
-                       "    ##        ##  ##   ## ###   ##  ##  ##   ##   "
-                       "##\n");
-                printf(" ##       ##  ##   ##  ##    ##      ##  ##   ##  "
-                       "##      "
-                       "    "
-                       " ##   ##   ##  ##   ##  ##   ##  ##  ##   ##   ##  "
-                       "##\n");
-                printf("####     ### ###  ###  ##    ##     ### ###  #### "
-                       "##      "
-                       "    "
-                       "  ## ##   ###  ##  ###  ##  ###  ##   ## ##   ### "
-                       "###\n");
+                printf("######   ####       ##     ##  ##   #######  ######              ####   ##   ##    ##     ##   ##    ####   #######\n");
+                printf(" ##  ##   ##       ####    ##  ##    ##   #   ##  ##            ##  ##  ##   ##   ####    ###  ##   ##  ##   ##   #\n");
+                printf(" ##  ##   ##      ##  ##   ##  ##    ## #     ##  ##           ##       ##   ##  ##  ##   #### ##  ##        ## #\n");
+                printf(" #####    ##      ##  ##    ####     ####     #####            ##       #######  ##  ##   ## ####  ##        ####\n");
+                printf(" ##       ##   #  ######     ##      ## #     ## ##            ##       ##   ##  ######   ##  ###  ##  ###   ## #\n");
+                printf(" ##       ##  ##  ##  ##     ##      ##   #   ##  ##            ##  ##  ##   ##  ##  ##   ##   ##   ##  ##   ##   #\n");
+                printf("####     #######  ##  ##    ####    #######  #### ##             ####   ##   ##  ##  ##   ##   ##    #####  #######\n");
+
                 printf("\n");
             }
         } else {
@@ -495,6 +519,8 @@ int main(void) {
                 turn = (turn == 1) ? 2 : 1;
                 remaining_moves = 0;
                 moves_count = 0;
+                // ターン終了後に妨害をチェックして適用
+                interference_cheak = check_and_apply_interference(turn);
             }
         }
 
